@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	"github.com/abraaoneves/channel/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/channels", handlers.GetAllChannels).Methods("GET")
+
+	handlers.CreateChannelRoutes(router)
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

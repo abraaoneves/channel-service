@@ -5,7 +5,13 @@ import (
 	"net/http"
 
 	"github.com/abraaoneves/channel/models"
+	"github.com/gorilla/mux"
 )
+
+func CreateChannelRoutes(route *mux.Router) {
+	route.HandleFunc("/channels", GetAllChannels).Methods("GET")
+	route.HandleFunc("/channels/{id}", GetChannel)
+}
 
 /**
 * Get all channels from database
