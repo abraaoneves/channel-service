@@ -11,7 +11,7 @@ import (
 func main() {
 	router := mux.NewRouter().StrictSlash(true)
 
-	handlers.CreateChannelRoutes(router)
+	handlers.RegisterChannelRoutes(router)
 
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateChannelRoutes(route *mux.Router) {
+func RegisterChannelRoutes(route *mux.Router) {
 	route.HandleFunc("/channels", GetAllChannels).Methods("GET")
 	route.HandleFunc("/channels/{id}", GetChannel)
 }
