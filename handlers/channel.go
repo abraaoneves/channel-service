@@ -2,30 +2,29 @@ package handlers
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
-	"net/http"
 
 	"github.com/abraaoneves/channel/infra"
 	"github.com/abraaoneves/channel/models"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterChannelRoutes(route *mux.Router) {
-	route.HandleFunc("/channels", CreateChannel).Methods("POST")
-	route.HandleFunc("/channels/{id}", GetChannel).Methods("GET")
+func RegisterChannelRoutes(app *fiber.App) {
+	app.Post("/channels", CreateChannel)
+	app.Get("/channels/:id", GetChannel)
 }
 
 /**
 * Create an channel
 **/
 //TODO: Create validation and specific methods to create channel
-func CreateChannel(w http.ResponseWriter, r *http.Request) {
-	request, _ := ioutil.ReadAll(r.Body)
+func CreateChannel(context *fiber.Ctx) error {
+	channel := new(models.Channel)
 
-	var channel models.Channel
-
-	json.Unmarshal(request, &channel)
+	if err := context.BodyParser(channel); err != nil {
+		log.Fatal("Invalid content")
+		return context.SendStatus(fiber.StatusInternalServerError)
+	}
 
 	log.Printf("persist new channel: %v \n", channel)
 
@@ -33,46 +32,39 @@ func CreateChannel(w http.ResponseWriter, r *http.Request) {
 	channelJson, err := json.Marshal(channel)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := make(map[string]string)
-		response["error"] = "Error to parse json"
-		json.NewEncoder(w).Encode(response)
-		return
+		log.Fatal("Error at parse to JSON")
+		return context.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	err = redis.Set(channel.Key, channelJson, 0).Err()
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		response := make(map[string]string)
-		response["error"] = "Error to persist channel at the database"
-		json.NewEncoder(w).Encode(response)
-		return
+		log.Fatal("Error to persist")
+		return context.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(channel)
+	return context.Status(201).JSON(&fiber.Map{
+		"success": true,
+		"message": "Channel successfully created",
+		"channel": channel,
+	})
 }
 
 /**
 * Return Channel by Ids
  */
-func GetChannel(w http.ResponseWriter, r *http.Request) {
-	parameters := mux.Vars(r)
-	id := parameters["id"]
-
+func GetChannel(context *fiber.Ctx) error {
+	id := context.Params("id")
 	db := infra.CreateDataBaseConnection()
 	channel, err := db.Get(id).Result()
-
 	log.Println(channel)
-
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
+		return context.SendStatus(fiber.StatusNotFound)
 	}
 
-	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(channel)
+	return context.Status(200).JSON(&fiber.Map{
+		"success": true,
+		"message": "Channel found",
+		"channel": channel,
+	})
 }

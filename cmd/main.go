@@ -2,16 +2,15 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/abraaoneves/channel/handlers"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
 func main() {
-	router := mux.NewRouter().StrictSlash(true)
+	app := fiber.New()
 
-	handlers.RegisterChannelRoutes(router)
+	handlers.RegisterChannelRoutes(app)
 
-	log.Fatal(http.ListenAndServe(":8000", router))
+	log.Fatal(app.Listen(":8000"))
 }
