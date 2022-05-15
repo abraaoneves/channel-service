@@ -3,6 +3,7 @@ module github.com/abraaoneves/channel
 go 1.17
 
 require (
+	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/gofiber/fiber/v2 v2.33.0 // indirect

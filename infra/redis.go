@@ -1,11 +1,14 @@
 package infra
 
-import "github.com/go-redis/redis"
+import (
+	"github.com/go-redis/redis"
+)
 
 func CreateDataBaseConnection() *redis.Client {
+	configuration := configure()
 	return redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "Redis1234",
+		Addr:     configuration.DB.Address,
+		Password: configuration.DB.Password,
 		DB:       0,
 	})
 }

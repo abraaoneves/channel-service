@@ -1,0 +1,5 @@
+title = "Cofiguration  file"
+
+[database]
+address = "localhost:6379"
+password = "Redis1234"
