@@ -2,7 +2,8 @@ package infra
 
 import (
 	"log"
-	"os"
+	"path"
+	"runtime"
 
 	"github.com/BurntSushi/toml"
 )
@@ -18,15 +19,18 @@ type Database struct {
 }
 
 func configure() Config {
-	// validate if file exist
-	file := "./configuration.toml"
-	if _, err := os.Stat(file); err != nil {
-		log.Fatal(err)
-		panic(err)
+	// Get current filename execute caller
+	_, filename, _, ok := runtime.Caller(1)
+
+	if ok != true {
+		log.Fatal(ok)
 	}
 
+	// Join file caller name to create configuration path
+	filepath := path.Join(path.Dir(filename), "../configuration.toml")
+
 	var confing Config
-	_, err := toml.DecodeFile(file, &confing)
+	_, err := toml.DecodeFile(filepath, &confing)
 
 	if err != nil {
 		log.Fatal(err)
